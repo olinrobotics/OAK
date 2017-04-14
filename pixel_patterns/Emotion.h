@@ -1,4 +1,7 @@
 #include <Adafruit_NeoPixel.h>
+// Class courtesy of Bill Earl from adafruit:
+// https://learn.adafruit.com/multi-tasking-the-arduino-part-3/put-it-all-together-dot-dot-dot
+// This implementation allows for dynamic updates and interrupts to the Neopixel cycles
 
 // Pattern types supported:
 enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_COLOR, BOW};
@@ -6,21 +9,24 @@ enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, N
 enum  direction { FORWARD, REVERSE };
 
 // NeoPattern Class - derived from the Adafruit_NeoPixel class
-class NeoPatterns : public Adafruit_NeoPixel{
+class Emotion : public Adafruit_NeoPixel{
   public:
+    
     // Member Variables:
     pattern  ActivePattern;  // which pattern is running
     direction Direction;     // direction to run the pattern
 
     unsigned long Interval;   // milliseconds between updates
     unsigned long lastUpdate; // last update of position
-    
+
     uint32_t Color1, Color2;  // What colors are in use
     uint16_t TotalSteps;  // total number of steps in the pattern
     int16_t Index;  // current step within the pattern
 
     void (*OnComplete)();  // Callback on completion of pattern
-
+  private:
+    int Intervals[]
+  
     // Constructor - calls base-class constructor to initialize strip
     NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)())
       : Adafruit_NeoPixel(pixels, pin, type)
