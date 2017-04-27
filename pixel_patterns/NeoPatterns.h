@@ -1,7 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 
 // Pattern types supported:
-enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_COLOR, BOW};
+enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_COLOR, PULSE };
 // Patern directions supported:
 enum  direction { FORWARD, REVERSE };
 
@@ -45,14 +45,14 @@ class NeoPatterns : public Adafruit_NeoPixel{
           case SCANNER:
             ScannerUpdate();
             break;
+          case PULSE:
+            PulseUpdate();
+            break;
           case FADE:
             FadeUpdate();
             break;
           case NO_COLOR:
             NoColorUpdate();
-            break;
-          case BOW:
-            BowUpdate();
             break;
           default:
             break;
@@ -93,60 +93,6 @@ class NeoPatterns : public Adafruit_NeoPixel{
       }
     }
 
-    // Initialize for a Bow
-    // Bow UP: FORWARD, Bow DOWN: REVERSE
-    void Bow(uint32_t color1, uint8_t interval, direction dir = FORWARD){
-      ActivePattern = BOW;
-      Interval = interval;
-      Direction = dir;
-      TotalSteps = numPixels() / 2;
-      Color1 = color1;
-      Index = (dir == FORWARD) ? (0) : (TotalSteps - 1);
-    }
-
-    void BowUpdate(){
-      //Allonge arm-like flare either up or down
-//      Serial.println(Index);
-//      for(int i = 0; i < numPixels(); i++){
-//        if(i % numPixels() < Index ){
-//          setPixelColor(i, FadeInColor(i, Color1, 0.01));  
-//        }else{
-//          setPixelColor(i, DimColor(i));
-//        }
-//        
-//      }
-//      setPixelColor(Index, FadeInColor(Index, Color1, 0.01));
-//      setPixelColor(numPixels() - 1 - Index, FadeInColor(numPixels() - 1 - Index, Color1, 0.01));
-//      
-//      setPixelColor((numPixels() - 1) - Index, Color1);
-      
-//          for(int i = 0; i < numPixels() / 2; i++){
-//            if(i == Index || i == (numPixels() - 1) - Index){
-//              setPixelColor(i, Color1);
-//            }else{
-//              setPixelColor(i, DimColor(getPixelColor(i)));  
-//            }
-//          }
-      if(Index < numPixels() / 2){
-        for(int i = 0; i < numPixels(); i++){
-          if(i == Index){
-            setPixelColor(Index, Color1);
-            setPixelColor((numPixels() - 1) - Index, Color1);    
-          }else{
-            setPixelColor(i, DimColor(getPixelColor(i)));  
-          }
-        }
-      }else{
-        // Second part of bow is lights flaring down, arms coming back down to body, fading out
-        for (int i = Index; i >= numPixels() / 2; i--){
-          setPixelColor(i, DimColor(getPixelColor(i)));
-          setPixelColor((numPixels() - 1) - i, DimColor(getPixelColor(i)));
-        }
-      }
-      show();
-      Increment();
-    }
-
     // Initialize for a RainbowCycle
     void RainbowCycle(uint8_t interval, direction dir = FORWARD){
       ActivePattern = RAINBOW_CYCLE;
@@ -161,6 +107,7 @@ class NeoPatterns : public Adafruit_NeoPixel{
       for (int i = 0; i < numPixels(); i++){
         setPixelColor(i, Wheel(((i * 256 / numPixels()) + Index) & 255));
       }
+      uint32_t c = Wheel(((1 * 256 / numPixels()) + Index) & 255);
       show();
       Increment();
     }
@@ -191,21 +138,22 @@ class NeoPatterns : public Adafruit_NeoPixel{
     }
 
     // Initialize for a ColorWipe
-    void ColorWipe(uint32_t color, uint8_t interval, direction dir = FORWARD, void (*callback)() = NULL){
+    void ColorWipe(uint32_t color, uint8_t interval, direction dir = FORWARD){
       ActivePattern = COLOR_WIPE;
       Interval = interval;
       TotalSteps = numPixels();
       Color1 = color;
       Index = (dir == FORWARD) ? (0) : (TotalSteps - 1);
       Direction = dir;
-      if(callback != NULL){
-        OnComplete = callback; 
-      }
+      Serial.println("COLORWIPE INITIALIZED");
+      ColorSet(Color(0, 0, 0));
+      show();
     }
 
     // Update the Color Wipe Pattern
     void ColorWipeUpdate(){
       setPixelColor(Index, Color1);
+      Serial.println(Red(Color1));
       show();
       Increment();
     }
@@ -235,6 +183,37 @@ class NeoPatterns : public Adafruit_NeoPixel{
       show();
       Increment();
     }
+    
+    void Pulse(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval){
+      ActivePattern = PULSE;
+      Interval = interval;
+      TotalSteps = steps * 2;
+      Color1 = color1;
+      Color2 = color2;
+      Index = 0;
+      Direction = FORWARD;
+    }
+
+    // Update the Scanner Pattern
+    void PulseUpdate(){
+      // Calculate linear interpolation between Color1 and Color2
+      // Optimise order of operations to minimize truncation error
+      int total_half_steps = TotalSteps / 2;
+      int index_half = Index;
+      if(Index > total_half_steps){
+        index_half = TotalSteps - Index;
+      }
+//      Serial.println(index_half);
+      uint8_t red = ((Red(Color1) * (total_half_steps - index_half)) + (Red(Color2) * index_half)) / total_half_steps;
+      uint8_t green = ((Green(Color1) * (total_half_steps - index_half)) + (Green(Color2) * index_half)) / total_half_steps;
+      uint8_t blue = ((Blue(Color1) * (total_half_steps - index_half)) + (Blue(Color2) * index_half)) / total_half_steps;
+
+      ColorSet(Color(red, green, blue));
+      show();
+      Increment();
+    }
+
+    
 
     // Initialize for a Fade
     void Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, direction dir = FORWARD){
@@ -260,12 +239,13 @@ class NeoPatterns : public Adafruit_NeoPixel{
       Increment();
     }
 
-    //Initialize for NoColor
-    void NoColor() {
+    void NoColor(uint16_t steps, uint8_t interval){
       ActivePattern = NO_COLOR;
-      TotalSteps = 1;
+      Index = 0;
+      TotalSteps = steps;
+      Interval = interval;
     }
-
+    
     // Update the NoColor Pattern
     void NoColorUpdate() {
       ColorSet(Color(0, 0, 0));
