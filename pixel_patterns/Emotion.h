@@ -57,15 +57,18 @@ class Emotion{
             Ring.ColorWipe(ColorParams[Index][0], TimeParams[Index][1]);
             break;
           case 4:
-            Ring.Scanner(ColorParams[Index][0], TimeParams[Index][1]);
+            Ring.Cycle(ColorParams[Index][0], TimeParams[Index][1]);
             break;
           case 5:
-            Ring.Pulse(ColorParams[Index][0], ColorParams[Index][1], TimeParams[Index][0], TimeParams[Index][1]);
+            Ring.Wiper(ColorParams[Index][0], TimeParams[Index][1]);
             break;
           case 6:
-            Ring.Fade(ColorParams[Index][0], ColorParams[Index][1], TimeParams[Index][0], TimeParams[Index][1]);
+            Ring.Pulse(ColorParams[Index][0], ColorParams[Index][1], TimeParams[Index][0], TimeParams[Index][1]);
             break;
           case 7:
+            Ring.Fade(ColorParams[Index][0], ColorParams[Index][1], TimeParams[Index][0], TimeParams[Index][1]);
+            break;
+          case 8:
             Ring.NoColor(TimeParams[Index][0], TimeParams[Index][1]);
             break;
           default:
@@ -75,26 +78,100 @@ class Emotion{
 
     void Praise(){
       // Quick circle of orange turning to a slow pulse between yellow and orange
-        uint32_t yellow = Ring.Color(239, 194, 14);
-        uint32_t orange = Ring.Color(239, 127, 14);
-        Index = 0;
+        uint32_t yellow = Ring.Color(239, 164, 14);
+        uint32_t orange = Ring.Color(239, 119, 14);
         TotalSteps = 2; // Number of functions in the pattern
 
-        short PraiseFunctions[TotalSteps] = {3, 5};
+        short PraiseFunctions[TotalSteps] = {3, 6};
         uint32_t PraiseColorParams[TotalSteps][NUM_COLOR_PARAMS] = {{orange, 0},{orange, yellow}};
-        uint8_t PraiseTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{0, 50},{20, 40}};
+        uint8_t PraiseTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{0, 50},{20, 60}};
         
-        updateArrays(PraiseFunctions, PraiseColorParams, PraiseTimeParams);
-        CalculateFunctionDurations();
-        UpdatePattern();
+        UpdateNewEmotion(PraiseFunctions, PraiseColorParams, PraiseTimeParams);
     }
 
-    void Stop(){
-      Index = 0;
+    void Gloat(){
+      // Quick cycle in blue, quick cycle in green, super quick pulsing
+        uint32_t blue = Ring.Color(39, 64, 229);
+        uint32_t brightGreen = Ring.Color(34, 232, 57);
+        TotalSteps = 3; // Number of functions in the pattern
+
+        short GloatFunctions[TotalSteps] = {4, 4, 6};
+        uint32_t GloatColorParams[TotalSteps][NUM_COLOR_PARAMS] = {{blue, 0}, {brightGreen, 0}, {blue, brightGreen}};
+        uint8_t GloatTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{0, 20}, {0, 20}, {5, 30}};
+        UpdateNewEmotion(GloatFunctions, GloatColorParams, GloatTimeParams);
+    }
+
+    void Blush(){
+      // Slow fade into pinkish color
+      uint32_t no_color = Ring.Color(0, 0, 0);
+      uint32_t light_pink = Ring.Color(224, 65, 72);
+      uint32_t dark_pink = Ring.Color(224, 72, 65);
+      TotalSteps = 2;
+      
+      short BlushFunctions[TotalSteps] = {7, 6};
+      uint32_t BlushColorParams[TotalSteps][NUM_COLOR_PARAMS] = {{no_color, light_pink}, {light_pink, dark_pink}};
+      uint8_t BlushTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{50, 50}, {50, 100}};
+      
+      UpdateNewEmotion(BlushFunctions, BlushColorParams, BlushTimeParams);
+    }
+    void NoEmotion(){
+      // Turn off the NeoPixels
       TotalSteps = 1;
-      Ring.NoColor(10, 10);
+      short NoEmotionFunctions[TotalSteps] = {8};
+      uint32_t NoEmotionColorParams[TotalSteps][NUM_COLOR_PARAMS] = {{0, 0}};
+      uint8_t NoEmotionTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{10, 10}};
+      
+      UpdateNewEmotion(NoEmotionFunctions, NoEmotionColorParams, NoEmotionTimeParams);
     }
 
+    void TestEmotion(){
+      uint32_t purple = Ring.Color(125, 22, 204);
+      TotalSteps = 1;
+      short TestFunctions[TotalSteps] = {4};
+      uint32_t TestColorParams[TotalSteps][NUM_COLOR_PARAMS] = {{purple, 0}};
+      uint8_t TestTimeParams[TotalSteps][NUM_TIME_PARAMS] = {{0, 100}};
+      
+      UpdateNewEmotion(TestFunctions, TestColorParams, TestTimeParams);
+    }
+
+    // To start new emotion sequence, update the global functions and their corresponding parameter arrays, calculate how much
+    // time each step in the sequence takes, and set the pattern on the Neopixel.
+    void UpdateNewEmotion(short NewFunctions[], uint32_t NewColorParams[][NUM_COLOR_PARAMS], uint8_t NewTimeParams[][NUM_COLOR_PARAMS]){
+      Index = 0; // Start from the beginning of the array of new functions
+      UpdateArrays(NewFunctions, NewColorParams, NewTimeParams);
+      CalculateFunctionDurations();
+      UpdatePattern();
+    }
+
+
+  // Set the global functions and their associated parameter arrays to the new emotion sequences. Because in C you cannot
+  // replace an array with a new one explicitly, you need to loop through every element (which is a pointer to a memory location) 
+  // and update the value in that block of memory. Arrays also cannot change size, so whatever space you do not use in the array
+  // set the value to 0. For example, if the maximum steps you set is 10 and your emotion needs only 3 steps, the first 3 elements
+  // are set to the values you provide, while the other 7 elements should be 0.
+  void UpdateArrays(short NewFunctions[], uint32_t NewColorParams[][NUM_COLOR_PARAMS], uint8_t NewTimeParams[][NUM_COLOR_PARAMS]){
+    for(int i = 0; i < MAX_STEPS; i++){
+      if(i < TotalSteps){ // Total steps in the emotion sequence should be updated before calling this function
+        Functions[i] = NewFunctions[i];
+        // Because NUM_COLOR_PARAMS and NUM_TIME_PARAMS is the same now, they can be looped through together.
+        // If this becomes not the case, you will need to separate loops.
+        for(int j = 0; j < NUM_COLOR_PARAMS; j++){
+          ColorParams[i][j] = NewColorParams[i][j];
+          TimeParams[i][j] = NewTimeParams[i][j];
+        }
+        
+      }else{
+        Functions[i] = 0;
+        for(int j = 0; j < NUM_COLOR_PARAMS; j++){
+          ColorParams[i][j] = 0;
+          TimeParams[i][j] = 0;
+        }
+      }
+    }
+  }
+
+    // Calculate how much time each step in the emotion sequence needs to run and update the durations array.
+    // Switching between steps of a sequence is determined by the duration of each step.
     void CalculateFunctionDurations(){
       for(int i = 0; i < MAX_STEPS; i++){
         // Define special function durations which have not standard step sizes defined in NeoPatterns.
@@ -103,12 +180,11 @@ class Emotion{
             case 1: // RainbowCycle
               Durations[i] = 255 * TimeParams[i][1];
               break;
-            case 4: // Scanner
+            case 5: // Wiper
               Durations[i] = (Ring.numPixels() - 1) * 2 * TimeParams[i][1];
               break;
-            case 5: // Pulse
+            case 6: // Pulse
               Durations[i] = 2 * TimeParams[i][0] * TimeParams[i][1];
-//              Serial.println(Durations[i]);
               break;
             default:
               if(TimeParams[i][0] == 0){
@@ -123,7 +199,7 @@ class Emotion{
               break;
           }
         } else{
-          Durations[i] = 0;
+          Durations[i] = 0; // other indeces are not taken up by steps of the emotion sequence
         }
           Serial.print(Durations[i]);
           Serial.print(", ");
@@ -132,36 +208,5 @@ class Emotion{
       Serial.println();
     }
 
-  void updateArrays(short newFunctions[], uint32_t newColorParams[][NUM_COLOR_PARAMS], uint8_t newTimeParams[][NUM_COLOR_PARAMS]){
-    for(int i = 0; i < MAX_STEPS; i++){
-      if(i < TotalSteps){ // Total steps should be updated before calling this function
-        Functions[i] = newFunctions[i];
-        for(int j = 0; j < NUM_COLOR_PARAMS; j++){
-          ColorParams[i][j] = newColorParams[i][j];
-          TimeParams[i][j] = newTimeParams[i][j];
-        }
-        
-//        for(int j = 0; j < NUM_TIME_PARAMS; j++){
-//          TimeParams[i][j] = newTimeParams[i][j];
-//        }
-      }else{
-        Functions[i] = 0;
-        for(int j = 0; j < NUM_COLOR_PARAMS; j++){
-          ColorParams[i][j] = 0;
-          TimeParams[i][j] = 0;
-        }
-        
-//        for(int j = 0; j < NUM_TIME_PARAMS; j++){
-//          TimeParams[i][j] = 0;
-//        }
-      }
-//      Serial.print("{");
-//      Serial.print(TimeParams[i][0]);
-//      Serial.print(", ");
-//      Serial.print(TimeParams[i][1]);
-//      Serial.print("}, ");
-    }
-//    Serial.println();
-  }
-
+  
 };

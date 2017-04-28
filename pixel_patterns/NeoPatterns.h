@@ -1,7 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 
 // Pattern types supported:
-enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_COLOR, PULSE };
+enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, CYCLE, FADE, NO_COLOR, PULSE, WIPER };
 // Patern directions supported:
 enum  direction { FORWARD, REVERSE };
 
@@ -42,8 +42,11 @@ class NeoPatterns : public Adafruit_NeoPixel{
           case COLOR_WIPE:
             ColorWipeUpdate();
             break;
-          case SCANNER:
-            ScannerUpdate();
+          case CYCLE:
+            CycleUpdate();
+            break;
+          case WIPER:
+            WiperUpdate();
             break;
           case PULSE:
             PulseUpdate();
@@ -137,6 +140,7 @@ class NeoPatterns : public Adafruit_NeoPixel{
       Increment();
     }
 
+    // Color Wipe paints a color, one pixel at a time, over the length of the strip resulting in all pixels of that color
     // Initialize for a ColorWipe
     void ColorWipe(uint32_t color, uint8_t interval, direction dir = FORWARD){
       ActivePattern = COLOR_WIPE;
@@ -145,30 +149,54 @@ class NeoPatterns : public Adafruit_NeoPixel{
       Color1 = color;
       Index = (dir == FORWARD) ? (0) : (TotalSteps - 1);
       Direction = dir;
-      Serial.println("COLORWIPE INITIALIZED");
-      ColorSet(Color(0, 0, 0));
+//      ColorSet(Color(0, 0, 0));
       show();
     }
 
     // Update the Color Wipe Pattern
     void ColorWipeUpdate(){
       setPixelColor(Index, Color1);
-      Serial.println(Red(Color1));
       show();
       Increment();
     }
 
-    // Initialize for a SCANNNER
-    void Scanner(uint32_t color1, uint8_t interval){
-      ActivePattern = SCANNER;
+    // Cycle moves a bright dot with a tail of dimming lights along the circle.
+    // Initialize for a CYCLE
+    void Cycle(uint32_t color1, uint8_t interval){
+      ActivePattern = CYCLE;
+      Interval = interval;
+      TotalSteps = numPixels();
+      Color1 = color1;
+      Index = 0;
+    }
+
+    // Update the Cycle Pattern
+    void CycleUpdate(){
+      for (int i = 0; i < numPixels(); i++){
+        if (i == Index){ // Scan Pixel to the right
+          setPixelColor(i, Color1);
+        }
+        else{ // Fading tail
+          setPixelColor(i, DimColor(getPixelColor(i)));
+        }
+      }
+      show();
+      Increment();
+    }
+
+    // Wiper moves a bright dot of color with a tail of dimming lights back and forth along the circle.
+    // Note: This is defined as the Scanner function in the Adafruit library
+    // Initialize for a WIPER
+    void Wiper(uint32_t color1, uint8_t interval){
+      ActivePattern = WIPER;
       Interval = interval;
       TotalSteps = (numPixels() - 1) * 2;
       Color1 = color1;
       Index = 0;
     }
 
-    // Update the Scanner Pattern
-    void ScannerUpdate(){
+    // Update the Wiper Pattern
+    void WiperUpdate(){
       for (int i = 0; i < numPixels(); i++){
         if (i == Index){ // Scan Pixel to the right
           setPixelColor(i, Color1);
@@ -183,7 +211,8 @@ class NeoPatterns : public Adafruit_NeoPixel{
       show();
       Increment();
     }
-    
+
+    // Pulse fades from one color to another and back continuously
     void Pulse(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval){
       ActivePattern = PULSE;
       Interval = interval;
@@ -194,7 +223,7 @@ class NeoPatterns : public Adafruit_NeoPixel{
       Direction = FORWARD;
     }
 
-    // Update the Scanner Pattern
+    // Update the Pulse Pattern
     void PulseUpdate(){
       // Calculate linear interpolation between Color1 and Color2
       // Optimise order of operations to minimize truncation error

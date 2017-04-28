@@ -20,17 +20,22 @@ void RingComplete2();
 // By setting this value, it can be treated as RGB
 //NeoPatterns Ring(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800, NULL);
 Emotion e(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800);
+int lastUpdate = 0;
 // Initialize everything and prepare to start
 void setup()
 {
   Serial.begin(115200);
-  e.Praise();
+  e.Blush();
+  lastUpdate = millis();
 }
 
 // Main loop
 void loop()
 {
-  // Update the ring
+  // Call the emotion update which will update the pattern if needed
   e.Update();
+//  if(millis() - lastUpdate == 10000){
+//    e.Praise();
+//  }
   // Any interrupts or updates to patterns go here, like button presses
 }
