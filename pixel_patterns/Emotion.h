@@ -201,11 +201,11 @@ class Emotion{
         } else{
           Durations[i] = 0; // other indeces are not taken up by steps of the emotion sequence
         }
-          Serial.print(Durations[i]);
-          Serial.print(", ");
+//          Serial.print(Durations[i]);
+//          Serial.print(", ");
           
       }
-      Serial.println();
+//      Serial.println();
     }
 
   
