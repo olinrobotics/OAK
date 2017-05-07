@@ -4,13 +4,6 @@
 class Emotion{
   private:
     NeoPatterns Ring;
-//    // Which pin on the Arduino is connected to the NeoPixels?
-//    #define PIN            6
-//    
-//    // How many NeoPixels are attached to the Arduino?
-//    #define NUMPIXELS      12
-//
-//    NeoPatterns Ring(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800, NULL);
     static const short MAX_STEPS = 10;
     static const short NUM_COLOR_PARAMS = 2;
     static const short NUM_TIME_PARAMS = 2;
@@ -18,9 +11,9 @@ class Emotion{
     short Functions[MAX_STEPS]; // List of numbers mapped to functions
     uint32_t ColorParams[MAX_STEPS][NUM_COLOR_PARAMS]; // List of color pairs
     uint8_t TimeParams[MAX_STEPS][NUM_TIME_PARAMS]; // List of (# steps, interval) pairs
-    int Durations[MAX_STEPS]; // Total duration of each function
-    int Index;
-    int TotalSteps; // <= MAX_STEPS
+    short Durations[MAX_STEPS]; // Total duration of each function
+    short Index;
+    short TotalSteps; // <= MAX_STEPS
     unsigned long lastUpdate;
     
     public:
@@ -102,7 +95,7 @@ class Emotion{
     }
 
     void Blush(){
-      // Slow fade into pinkish color
+      // Slow fade into pinkish color and pulse very slightly
       uint32_t no_color = Ring.Color(0, 0, 0);
       uint32_t light_pink = Ring.Color(224, 65, 72);
       uint32_t dark_pink = Ring.Color(224, 72, 65);
