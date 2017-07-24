@@ -4,20 +4,25 @@
  * @file        servo.cpp
  * Servo class for OAK (Olin Autonomous Kore)
  * @author      Connor Novak
+ * @author      Carl Moser
  * @email       connor@students.olin.edu
  * @version     1.0
- * @date        17/07/17
+ * @date        24/07/17
  ******************************************************************************/
 
-// Function & variable declaractions needed because class is static
-ros::Publisher *signalIn;
-std_msgs::Byte Servo::servo_signal;
 
-void Servo::setup(ros::NodeHandle *nh){
-  signalIn = new ros::Subscriber("/servo", &servo_signal)
+OAKServo::OAKServo(ros::NodeHandle *nh, const char* name, const int pin):pin(pin){
+  signalIn = new ros::Subscriber<std_msgs::Byte, OAKServo>(name, &OAKServo::servoCB, this);
   nh->subscribe(*signalIn); // tells ROS about the subscriber
+  s.attach(pin);
 }
 
-void Servo::servoCB(){
+OAKServo::OAKServo(ros::NodeHandle *nh, const char* name, const int pin, const int min, const int max):pin(pin){
+  signalIn = new ros::Subscriber<std_msgs::Byte, OAKServo>(name, &OAKServo::servoCB, this);
+  nh->subscribe(*signalIn); // tells ROS about the subscriber
+  s.attach(pin, min, max);
+}
 
+void OAKServo::servoCB(const std_msgs::Byte &sig){
+  s.write(sig.data);
 }

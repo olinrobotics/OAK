@@ -1,31 +1,22 @@
-#ifndef SERVO_H // include guard
-#define SERVO_H
-
-/******************************************************************************
- * @file        servo.h
- * Header file for OAK (Olin Autonomous Kore) Servo class
- * @author      Connor Novak
- * @email       connor@students.olin.edu
- * @version     1.0
- * @date        17/07/17
- ******************************************************************************/
+#ifndef OAK_SERVO_H
+#define OAK_SERVO_H
 
  #include "ros.h"
  #include "std_msgs/Byte.h"
  #include "config.h"
+ #include <PWMServo.h>
 
-#ifndef SERVO_PIN
-  #error SERVO_PIN NEEDS TO BE DEFINED
-#endif
-
-class Servo{
+class OAKServo{
 public:
-  void setup(ros::NodeHandle *nh);
-private:
-  ros::Subscriber *signalIn;
-  std_msgs::Byte servo_signal;
-  void servoCB(std_msgs::Byte sig);
+  explicit OAKServo(ros::NodeHandle *nh, const char* name, const int pin);
+  explicit OAKServo(ros::NodeHandle *nh, const char* name, const int pin, const int min, const int max);
 
+private:
+  ros::Subscriber<std_msgs::Byte, OAKServo> *signalIn;
+  std_msgs::Byte servo_signal;
+  const int pin;
+  PWMServo s;
+  void servoCB(const std_msgs::Byte &sig);
 };
 
-#endif //SERVO_H
+#endif //OAK_SERVO_H
