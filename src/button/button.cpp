@@ -12,7 +12,7 @@
  *
  * @class button button.h "button.h"
  *
- * @TODO update documentationS
+ * @TODO update documentation
  * @TODO look into reading pin state after a delay
  * @TODO optimize for other types of triggers
  ******************************************************************************/
