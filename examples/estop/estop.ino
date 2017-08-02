@@ -4,15 +4,17 @@
 #include "ros.h"
 
 //User classes
-#include "config.h"
 #include "estop.h"
+
+// Constant Definitions
+#define ESTOP_PIN 2
+#define ESTOP_DEBOUNCE_TIME 1
 
 // ROS variables
 ros::NodeHandle nh;
 Estop *e;
 
 void setup() {
-  nh.getHardware()->setBaud(ROSSERIAL_BAUD);
   nh.initNode(); // Initialize ROS nodehandle
   e->setup(&nh);
   e->onStop(stop);
