@@ -19,9 +19,9 @@
  * Initializes a publisher and subsciber
  * attaches the estop pin
  */
-void Estop::Estop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
+Estop::Estop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
   hardEStop = new ros::Publisher("/hardestop", &stopped);
-  softEStop = new ros::Subscriber<std_msgs::Bool>("/softestop", &Estop::softStopCB, this);
+  softEStop = new ros::Subscriber<std_msgs::Bool, Estop>("/softestop", &Estop::softStopCB, this);
   nh->advertise(*hardEStop);
   nh->subscribe(*softEStop);
   last_mill = millis();

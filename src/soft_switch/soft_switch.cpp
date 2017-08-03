@@ -11,7 +11,7 @@
 
 
 OAKSoftSwitch::OAKSoftSwitch(ros::NodeHandle *nh, const char* name, const int pin):pin(pin){
-  signalIn = new ros::Subscriber<std_msgs::Byte, OAKSoftSwitch>(name, &OAKSoftSwitch::servoCB, this);
+  signalIn = new ros::Subscriber<std_msgs::Bool, OAKSoftSwitch>(name, &OAKSoftSwitch::servoCB, this);
   nh->subscribe(*signalIn);
   pinMode(pin, OUTPUT);
 }

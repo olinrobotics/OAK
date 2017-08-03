@@ -16,7 +16,7 @@ public:
 
 private:
   ros::Publisher *hardEStop;
-	ros::Subscriber<std_msgs::Bool> *softEStop;
+	ros::Subscriber<std_msgs::Bool, Estop> *softEStop;
   std_msgs::Bool stopped;
 	bool softStopped = false;
 	const unsigned int debounceTime;
