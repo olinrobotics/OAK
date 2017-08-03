@@ -6,17 +6,13 @@
 //User classes
 #include "estop.h"
 
-// Constant Definitions
-#define ESTOP_PIN 2
-#define ESTOP_DEBOUNCE_TIME 1
-
 // ROS variables
 ros::NodeHandle nh;
 Estop *e;
 
 void setup() {
   nh.initNode(); // Initialize ROS nodehandle
-  e->setup(&nh);
+  e->setup(&nh, 2, 1);
   e->onStop(stop);
   e->offStop(restart);
   pinMode(13, OUTPUT);
