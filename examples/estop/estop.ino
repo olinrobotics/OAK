@@ -12,7 +12,7 @@ Estop *e;
 
 void setup() {
   nh.initNode(); // Initialize ROS nodehandle
-  e->setup(&nh, 2, 1);
+  e = new Estop(&nh, 2, 1);
   e->onStop(stop);
   e->offStop(restart);
   pinMode(13, OUTPUT);
