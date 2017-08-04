@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -194,7 +194,7 @@ inline uint32_t getPinIndex(volatile uint32_t *config) {
 	return (v % 128) / 4;
 }
 #elif defined(KINETISL)
-volatile static isr_entry_t intFunc[CORE_NUM_DIGITAL] = { [0 ... CORE_NUM_DIGITAL-1] = { dummy_isr } };
+volatile static voidFuncPtr intFunc[CORE_NUM_DIGITAL] = { [0 ... CORE_NUM_DIGITAL-1] = dummy_isr };
 static void porta_interrupt(void);
 static void portcd_interrupt(void);
 #endif
@@ -220,7 +220,11 @@ void attachInterruptInternal(uint8_t pin, void (*function)(void), int mode, void
 	}
 	mask = (mask << 16) | 0x01000000;
 	config = portConfigRegister(pin);
-
+	if ((*config & 0x00000700) == 0) {
+		// for compatibility with programs which depend
+		// on AVR hardware default to input mode.
+		pinMode(pin, INPUT);
+	}
 #if defined(KINETISK)
 	attachInterruptVector(IRQ_PORTA, port_A_isr);
 	attachInterruptVector(IRQ_PORTB, port_B_isr);
@@ -245,7 +249,7 @@ void attachInterruptInternal(uint8_t pin, void (*function)(void), int mode, void
 	cfg = *config;
 	cfg &= ~0x000F0000;		// disable any previous interrupt
 	*config = cfg;
-	intFunc[pin] = { function, pin, clas };	// set the function pointer
+	intFunc[pin] = function;	// set the function pointer
 	cfg |= mask;
 	*config = cfg;			// enable the new interrupt
 	__enable_irq();
@@ -288,20 +292,20 @@ void detachInterrupt(uint8_t pin)
 #endif
 }
 
+
+typedef void (*voidFuncPtr)(void);
+
 // Using CTZ instead of CLZ is faster, since it allows more efficient bit
 // clearing and fast indexing into the pin ISR table.
 #define PORT_ISR_FUNCTION_CLZ(port_name) \
 	static void port_ ## port_name ## _isr(void) {            \
 		uint32_t isfr = PORT ## port_name ##_ISFR;            \
 		PORT ## port_name ##_ISFR = isfr;                     \
-		isr_entry_t* isr_table = isr_table_port ## port_name; \
-		isr_entry_t isr_entry;                                \
+		voidFuncPtr* isr_table = isr_table_port ## port_name; \
+		uint32_t bit_nr;                                      \
 		while(isfr) {                                         \
-			isr_entry = isr_table[__builtin_ctz(isfr)];       \
-			if (isr_entry.clas)                         \
-				((intFuncPtr)isr_entry.func)(isr_entry.clas);  \
-			else                                              \
-				isr_entry.func();                             \
+			bit_nr = __builtin_ctz(isfr);                     \
+			isr_table[bit_nr]();                              \
 			isfr = isfr & (isfr-1);                           \
 			if(!isfr) return;                                 \
 		}                                                     \
@@ -318,8 +322,9 @@ PORT_ISR_FUNCTION_CLZ(E)
 // Kinetis L (Teensy LC) is based on Cortex M0 and doesn't have hardware
 // support for CLZ.
 
-#define DISPATCH_PIN_ISR(pin_nr) { isr_entry_t isr_entry = intFunc[pin_nr]; \
-                                   if(isfr & CORE_PIN ## pin_nr ## _BITMASK) { if(isr_entry.clas) ((intFuncPtr)isr_entry.func)(pin_nr); else isr_entry.func(); } }
+#define DISPATCH_PIN_ISR(pin_nr) { voidFuncPtr pin_isr = intFunc[pin_nr]; \
+                                   if(isfr & CORE_PIN ## pin_nr ## _BITMASK) pin_isr(); }
+
 static void porta_interrupt(void)
 {
 	uint32_t isfr = PORTA_ISFR;
@@ -471,7 +476,7 @@ extern void usb_init(void);
 
 #if F_CPU > 16000000
 #define F_TIMER (F_PLL/2)
-#else
+#else 
 #define F_TIMER (F_PLL)
 #endif//Low Power
 
@@ -534,6 +539,7 @@ extern void usb_init(void);
 #endif
 
 //void init_pins(void)
+__attribute__((noinline))
 void _init_Teensyduino_internal_(void)
 {
 #if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
@@ -603,8 +609,9 @@ void _init_Teensyduino_internal_(void)
 	// for background about this startup delay, please see these conversations
 	// https://forum.pjrc.com/threads/36606-startup-time-(400ms)?p=113980&viewfull=1#post113980
 	// https://forum.pjrc.com/threads/31290-Teensey-3-2-Teensey-Loader-1-24-Issues?p=87273&viewfull=1#post87273
-	delay(400);
+	delay(50);
 	usb_init();
+	delay(350);
 }
 
 
@@ -918,14 +925,17 @@ void analogWrite(uint8_t pin, int val)
 }
 
 
-void analogWriteRes(uint32_t bits)
+uint32_t analogWriteRes(uint32_t bits)
 {
+	uint32_t prior_res;
 	if (bits < 1) {
 		bits = 1;
 	} else if (bits > 16) {
 		bits = 16;
 	}
+	prior_res = analog_write_res;
 	analog_write_res = bits;
+	return prior_res;
 }
 
 
@@ -946,6 +956,11 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		ftmClock = 16000000;
 	} else
 #endif
+#if defined(__MKL26Z64__)
+	// Teensy LC does not support slow clock source (ftmClockSource = 2)
+	ftmClockSource = 1; 	// Use default F_TIMER clock source
+	ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
+#else
 	if (frequency < (float)(F_TIMER >> 7) / 65536.0f) {
 		// frequency is too low for working with F_TIMER:
 		ftmClockSource = 2; 	// Use alternative 31250Hz clock source
@@ -954,8 +969,9 @@ void analogWriteFrequency(uint8_t pin, float frequency)
 		ftmClockSource = 1; 	// Use default F_TIMER clock source
 		ftmClock = F_TIMER;	// Set variable for the actual timer clock frequency
 	}
+#endif
 
-
+	
 	for (prescale = 0; prescale < 7; prescale++) {
 		minfreq = (float)(ftmClock >> prescale) / 65536.0f;	//Use ftmClock instead of F_TIMER
 		if (frequency >= minfreq) break;
@@ -1091,19 +1107,16 @@ void pinMode(uint8_t pin, uint8_t mode)
 #else
 		*portModeRegister(pin) &= ~digitalPinToBitMask(pin);
 #endif
-		if (mode == INPUT || mode == INPUT_PULLUP || mode == INPUT_PULLDOWN) {
+		if (mode == INPUT) {
 			*config = PORT_PCR_MUX(1);
-			if (mode == INPUT_PULLUP) {
-		    	*config |= (PORT_PCR_PE | PORT_PCR_PS); // pullup
-			} else if (mode == INPUT_PULLDOWN) {
-			    *config |= (PORT_PCR_PE); // pulldown
-			    *config &= ~(PORT_PCR_PS);
-			}
-		} else {
-			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; // pullup
+		} else if (mode == INPUT_PULLUP) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS;
+		} else if (mode == INPUT_PULLDOWN) {
+			*config = PORT_PCR_MUX(1) | PORT_PCR_PE;
+		} else { // INPUT_DISABLE
+			*config = 0;
 		}
 	}
-
 }
 
 
@@ -1272,7 +1285,7 @@ uint32_t pulseIn_low(volatile uint8_t *reg, uint32_t timeout)
 {
 	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
 	uint32_t usec_start, usec_stop;
-
+	
 	// wait for any previous pulse to end
 	while (!*reg) {
 		if (--timeout_count == 0) return 0;
@@ -1325,7 +1338,7 @@ uint32_t pulseIn_low(volatile uint8_t *reg, uint8_t mask, uint32_t timeout)
 {
 	uint32_t timeout_count = timeout * PULSEIN_LOOPS_PER_USEC;
 	uint32_t usec_start, usec_stop;
-
+	
 	// wait for any previous pulse to end
 	while (!(*reg & mask)) {
 		if (--timeout_count == 0) return 0;
