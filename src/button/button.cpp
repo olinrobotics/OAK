@@ -28,7 +28,7 @@
  * @param[in] debounceTime The debounce time for the button
  * @param[in] trigger When the interrupt should be triggered
  */
-button::button(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin),debounceTime(debounceTime){
+Button::Button(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin),debounceTime(debounceTime){
   but = new ros::Publisher(name, &pressed);
   nh->advertise(*but);
   last_mill = millis();
@@ -41,8 +41,8 @@ button::button(ros::NodeHandle *nh, const char* name, const int pin, const unsig
  * Global function that calls the object function
  * @param[in] instance Instance of the class
  */
-void button::globalPress(void *instance){
-  static_cast<button*>(instance)->onChange();
+void Button::globalPress(void *instance){
+  static_cast<Button*>(instance)->onChange();
 }
 
 /*
@@ -51,7 +51,7 @@ void button::globalPress(void *instance){
  * If pressed - calls the pressedfunc and publishes true
  * If released - calls the releasedfunc and publishes false
  */
-void button::onChange(){
+void Button::onChange(){
   if(millis()-last_mill >= debounceTime){
     pressed.data = !pressed.data;
     but->publish(&pressed);
@@ -69,7 +69,7 @@ void button::onChange(){
  * Set pressed function pointer to function pointer that is passed in
  * @param[in] func
  */
-void button::onPress(void (*func)()){
+void Button::onPress(void (*func)()){
   pressedfunc = func;
 }
 
@@ -77,6 +77,6 @@ void button::onPress(void (*func)()){
  * Set released function pointer to function pointer that is passed in
  * @param[in] func Pointer to
  */
-void button::offPress(void (*func)()){
+void Button::offPress(void (*func)()){
   releasedfunc = func;
 }

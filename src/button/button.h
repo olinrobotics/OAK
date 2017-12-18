@@ -2,7 +2,6 @@
 #define BUTTON_H
 
 #include <Time.h>
-#include <TimeAlarms.h>
 #include "ros.h"
 #include "std_msgs/Bool.h"
 #include "config.h"
@@ -10,9 +9,9 @@
 static void dummyFunc() {return;}
 extern void attachInterrupt2(uint8_t pin, void (*function)(void*), int mode, void* clas);
 
-class button{
+class Button{
 public:
-	explicit button(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger);
+	explicit Button(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger);
 	void onPress(void (*func)());
 	void offPress(void (*func)());
 	static void globalPress(void* instance);
