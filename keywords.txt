@@ -1,19 +1,37 @@
 #######################################
-# Syntax Coloring Map For OAK
+# Syntax Coloring Map For oak
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
+OAKVL53 KEYWORD1
+OAKServo KEYWORD1
+OAKEstop KEYWORD1
+OAKEncoder KEYWORD1
+OAKButton KEYWORD1
+OAKSoftSwitch KEYWORD1
+
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-#######################################
-# Instances (KEYWORD2)
-#######################################
+# OAKVL53
+publish KEYWORD2
 
-#######################################
-# Constants (LITERAL1)
-#######################################
+# OAKServo
+
+# OAKEstop
+isStopped KEYWORD2
+onStop KEYWORD2
+offStop KEYWORD2
+
+# OAKEncoder
+publish KEYWORD2
+
+# OAKButton
+onPress KEYWORD2
+offPress KEYWORD2
+
+# OAKSoftSwitch

@@ -1,16 +1,16 @@
 #include <Arduino.h>
-#include "ros.h"
-#include "servo.h"
+#include <ros.h>
+#include <OAKVL53.h>
 
 ros::NodeHandle nh;
-OAKServo *s;
+OAKVL53 *v;
 
 void setup(){
   nh.initNode(); // Initialize ROS nodehandle
-  s = new OAKServo(&nh, "/test_servo", 2);
+  v = new OAKVL53(&nh, "/test_tof", 100);
 }
 
 void loop(){
   nh.spinOnce();
-  delay(100);
+  v->publish();
 }

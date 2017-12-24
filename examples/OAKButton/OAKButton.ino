@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include <ros.h>
-#include <oak.h>
-#include <servo/servo.h>
+#include <OAKButton.h>
 
 ros::NodeHandle nh;
-button *b;
+OAKButton *b;
 
 void setup(){
   nh.initNode(); // Initialize ROS nodehandle
-  b = new button(&nh, "/test_button", 0, 100, CHANGE);
+  b = new OAKButton(&nh, "/test_button", 0, 100, CHANGE);
   b->onPress(press);
   b->offPress(release);
   pinMode(13, OUTPUT);

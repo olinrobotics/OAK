@@ -3,7 +3,6 @@
 
  #include "ros.h"
  #include "std_msgs/Byte.h"
- #include "config.h"
  #include <PWMServo.h>
 
 class OAKServo{

@@ -1,5 +1,5 @@
-#ifndef ESTOP_H
-#define ESTOP_H
+#ifndef OAK_ESTOP_H
+#define OAK_ESTOP_H
 
 #include "ros.h"
 #include "std_msgs/Bool.h"
@@ -7,9 +7,9 @@
 static void dummyFunc() {return;}
 extern void attachInterrupt2(uint8_t pin, void (*function)(void*), int mode, void* clas);
 
-class Estop{
+class OAKEstop{
 public:
-	explicit Estop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime);
+	explicit OAKEstop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime);
 	static void globalStop(void* instance);
 	void onStop(void (*func)());
 	void offStop(void (*func)());
@@ -17,7 +17,7 @@ public:
 
 private:
     ros::Publisher *hardEStop;
-	ros::Subscriber<std_msgs::Bool, Estop> *softEStop;
+	ros::Subscriber<std_msgs::Bool, OAKEstop> *softEStop;
     std_msgs::Bool stopped;
 	bool softStopped = false;
 	const unsigned int debounceTime;
@@ -29,4 +29,4 @@ private:
 	void softStopCB(const std_msgs::Bool &message);
 };
 
-#endif //ESTOP_H
+#endif //OAK_ESTOP_H

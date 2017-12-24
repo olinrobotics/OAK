@@ -1,18 +1,14 @@
 #include <Arduino.h>
-
-//ROS library and messages
-#include "ros.h"
-
-//User classes
-#include "estop.h"
+#include <ros.h>
+#include <OAKEstop.h>
 
 // ROS variables
 ros::NodeHandle nh;
-Estop *e;
+OAKEstop *e;
 
 void setup() {
   nh.initNode(); // Initialize ROS nodehandle
-  e = new Estop(&nh, 2, 1);
+  e = new OAKEstop(&nh, 2, 1);
   e->onStop(stop);
   e->offStop(restart);
   pinMode(13, OUTPUT);

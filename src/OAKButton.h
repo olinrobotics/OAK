@@ -1,17 +1,16 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef OAK_BUTTON_H
+#define OAK_BUTTON_H
 
 #include <Time.h>
 #include "ros.h"
 #include "std_msgs/Bool.h"
-#include "config.h"
 
 static void dummyFunc() {return;}
 extern void attachInterrupt2(uint8_t pin, void (*function)(void*), int mode, void* clas);
 
-class Button{
+class OAKButton{
 public:
-	explicit Button(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger);
+	explicit OAKButton(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger);
 	void onPress(void (*func)());
 	void offPress(void (*func)());
 	static void globalPress(void* instance);
@@ -27,4 +26,4 @@ private:
   void (*releasedfunc)() = dummyFunc;
 };
 
-#endif //BUTTON_H
+#endif //OAK_BUTTON_H

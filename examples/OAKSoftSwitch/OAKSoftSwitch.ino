@@ -1,16 +1,16 @@
 #include <Arduino.h>
 #include <ros.h>
-#include <oak.h>
+#include <OAKSoftSwitch.h>
 
 ros::NodeHandle nh;
-OAKVL53 *v;
+OAKSoftSwitch *s;
 
 void setup(){
   nh.initNode(); // Initialize ROS nodehandle
-  v = new OAKVL53(&nh, "/test_tof", 100);
+  s = new OAKSoftSwitch(&nh, "/test_servo", 13);
 }
 
 void loop(){
   nh.spinOnce();
-  v->publish();
+  delay(100);
 }

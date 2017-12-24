@@ -1,7 +1,5 @@
-#include "estop.h"
-
 /******************************************************************************
- * Estop class for OAK (Olin Autonomous Kore)
+ * OAKEstop class for OAK (Olin Autonomous Kore)
  * @file estop.cpp
  * @author Carl Moser
  * @email carl.moser@students.olin.edu
@@ -10,23 +8,29 @@
  * This is meant to be a modular class for any robot within the lab
  * it automatically creates a publisher and subscriber for an estop
  *
- * @class Estop estop.h "estop.h"
+ * @class OAKEstop oakestop.h "oakestop.h"
  ******************************************************************************/
+
+
+#include "OAKEstop.h"
 
 /*
  * Constructor for the class
  *
  * Initializes a publisher and subsciber
  * attaches the estop pin
+ * @param[in] nh Memory address of the main ros nodehandle
+ * @param[in] pin The pin that the servo is on
+ * @param[in] debounceTime The debounce time of the estop button
  */
-Estop::Estop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
+OAKEstop::OAKEstop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
   hardEStop = new ros::Publisher("/hardestop", &stopped);
-  softEStop = new ros::Subscriber<std_msgs::Bool, Estop>("/softestop", &Estop::softStopCB, this);
+  softEStop = new ros::Subscriber<std_msgs::Bool, OAKEstop>("/softestop", &OAKEstop::softStopCB, this);
   nh->advertise(*hardEStop);
   nh->subscribe(*softEStop);
   last_mill = millis();
   pinMode(pin, INPUT_PULLUP);
-  attachInterrupt2(digitalPinToInterrupt(pin), &Estop::globalStop, CHANGE, this);
+  attachInterrupt2(digitalPinToInterrupt(pin), &OAKEstop::globalStop, CHANGE, this);
   stopped.data = !digitalRead(pin);
 }
 
@@ -35,8 +39,8 @@ Estop::Estop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime
  *
  * @param[in] instance Instance of the class
  */
-void Estop::globalStop(void *instance){
-  static_cast<Estop*>(instance)->onChange();
+void OAKEstop::globalStop(void *instance){
+  static_cast<OAKEstop*>(instance)->onChange();
 }
 
 /*
@@ -44,7 +48,7 @@ void Estop::globalStop(void *instance){
  *
  * @return True if stopped
  */
-bool Estop::isStopped(){
+bool OAKEstop::isStopped(){
   return softStopped|stopped.data;
 }
 
@@ -54,17 +58,17 @@ bool Estop::isStopped(){
  * If stopping - calls the stopfunc and publishes true
  * If reseting from stop - calls the startfunc and publishes false
  */
-void Estop::onChange(){
+void OAKEstop::onChange(){
   if(millis()-last_mill >= debounceTime*50){
     /*if(digitalRead(ESTOP_PIN)){
       stopped.data = true;
       hardEStop->publish(&stopped);
-      (*Estop::stopfunc)();
+      (*OAKEstop::stopfunc)();
     }
     else{
       stopped.data = false;
       hardEStop->publish(&stopped);
-      (*Estop::startfunc)();
+      (*OAKEstop::startfunc)();
     }*/
     stopped.data = !stopped.data;
     hardEStop->publish(&stopped);
@@ -82,7 +86,7 @@ void Estop::onChange(){
 /*
  *Function that runs on sofware estop
  */
-void Estop::softStopCB(const std_msgs::Bool &message){
+void OAKEstop::softStopCB(const std_msgs::Bool &message){
   if(message.data){
     (*stopfunc)();
     softStopped = true;
@@ -95,10 +99,20 @@ void Estop::softStopCB(const std_msgs::Bool &message){
   }
 }
 
-void Estop::onStop(void (*func)()){
+/*
+ * Sets the function to run on estop
+ *
+ * @param[in] func Pointer to the function to run on an estop
+ */
+void OAKEstop::onStop(void (*func)()){
   stopfunc = func;
 }
 
-void Estop::offStop(void (*func)()){
+/*
+ * Sets the function to run when un-estoping
+ *
+ * @param[in] func Pointer to the function to run off an estop
+ */
+void OAKEstop::offStop(void (*func)()){
   startfunc = func;
 }

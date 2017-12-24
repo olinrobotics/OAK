@@ -1,16 +1,16 @@
 #include <Arduino.h>
 #include <ros.h>
-#include <oak.h>
+#include <OAKServo.h>
 
 ros::NodeHandle nh;
-OAKEncoder *e;
+OAKServo *s;
 
 void setup(){
   nh.initNode(); // Initialize ROS nodehandle
-  e = new OAKEncoder(&nh, "/test_encoder", 100, 2, 3);
+  s = new OAKServo(&nh, "/test_servo", 2);
 }
 
 void loop(){
   nh.spinOnce();
-  v->publish();
+  delay(100);
 }
