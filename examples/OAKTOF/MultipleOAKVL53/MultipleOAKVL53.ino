@@ -28,7 +28,7 @@ void setup(){
   delay(15); // Give the TOF sensors time to reset
   for(int i = 0; i < NUM_SENSOR; i++){
     digitalWrite(pin[i], HIGH);
-    v[i] = new OAKVL53(&nh, names[i], 100, addresses[i]);
+    v[i] = new OAKVL53(&nh, names[i].c_str(), 100, addresses[i]);
   }
 }
 
