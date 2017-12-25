@@ -8,7 +8,7 @@
 
 class OAKVL53{
 public:
-	explicit OAKVL53(ros::NodeHandle *nh, const char* name, const unsigned int del, const int address);
+	explicit OAKVL53(ros::NodeHandle *nh, const char* name, const unsigned int del, const int address = 0x29);
 	void publish();
 
 private:

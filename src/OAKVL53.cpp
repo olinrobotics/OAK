@@ -24,7 +24,7 @@
  * @param[in] del The delay between publishing distances
  * @param[in] address Address of the VL53L0X (default = 0x29)
  */
-OAKVL53::OAKVL53(ros::NodeHandle *nh, const char* name, const unsigned int del, const int address = 0x29):del(del){
+OAKVL53::OAKVL53(ros::NodeHandle *nh, const char* name, const unsigned int del, const int address):del(del){
   dist_pub = new ros::Publisher(name, &dist);
   nh->advertise(*dist_pub);
   tof = new Adafruit_VL53L0X();
