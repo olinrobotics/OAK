@@ -1,5 +1,5 @@
-#ifdef OAK_SHARP_IR
-#define OAK_SHARP_IR
+#ifndef OAK_SHARP_IR_H
+#define OAK_SHARP_IR_H
 
 #include "ros.h"
 #include "std_msgs/Float32.h"
@@ -17,4 +17,4 @@ private:
 	long last_mill;
 };
 
-#endif //OAK_SHARP_IR
+#endif //OAK_SHARP_IR_H

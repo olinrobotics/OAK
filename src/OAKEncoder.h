@@ -1,5 +1,5 @@
-#ifndef OAK_ENCODER
-#define OAK_ENCODER
+#ifndef OAK_ENCODER_H
+#define OAK_ENCODER_H
 
 #include "ros.h"
 #include "std_msgs/Int64.h"
@@ -18,4 +18,4 @@ private:
 	long last_mill;
 };
 
-#endif //OAK_ENCODER
+#endif //OAK_ENCODER_H
