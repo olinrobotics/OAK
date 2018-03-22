@@ -5,10 +5,10 @@
  #include "std_msgs/Byte.h"
  #include <PWMServo.h>
 
-class OAKServo{
+class OAKServo: private OAK{
 public:
-  explicit OAKServo(ros::NodeHandle *nh, const char* name, const int pin);
-  explicit OAKServo(ros::NodeHandle *nh, const char* name, const int pin, const int min, const int max);
+  explicit OAKServo(const char* name, const int pin);
+  explicit OAKServo(const char* name, const int pin, const int min, const int max);
 
 private:
   ros::Subscriber<std_msgs::Byte, OAKServo> *signalIn;

@@ -19,9 +19,9 @@
  * @param[in] name Name of the subscriber
  * @param[in] pin Pin software switch
  */
-OAKSoftSwitch::OAKSoftSwitch(ros::NodeHandle *nh, const char* name, const int pin):pin(pin){
+OAKSoftSwitch::OAKSoftSwitch(const char* name, const int pin):pin(pin){
   signalIn = new ros::Subscriber<std_msgs::Bool, OAKSoftSwitch>(name, &OAKSoftSwitch::softCB, this);
-  nh->subscribe(*signalIn);
+  OAK::nh->subscribe(*signalIn);
   pinMode(pin, OUTPUT);
 }
 /*

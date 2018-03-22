@@ -12,6 +12,7 @@
  ******************************************************************************/
 
 
+#include "OAK.h"
 #include "OAKEncoder.h"
 
 /*
@@ -25,9 +26,9 @@
  * @param[in] a Pin a of the encoder
  * @param[in] b Pin b of the encoder
  */
-OAKEncoder::OAKEncoder(ros::NodeHandle *nh, const char* name, const unsigned int del, byte a, byte b):del(del){
+OAKEncoder::OAKEncoder(const char* name, const unsigned int del, byte a, byte b):del(del){
   encod_pub = new ros::Publisher(name, &count);
-  nh->advertise(*encod_pub);
+  OAK::nh->advertise(*encod_pub);
   enc = new Encoder(a, b);
   last_mill = millis();
 }

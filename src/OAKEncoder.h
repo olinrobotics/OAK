@@ -5,9 +5,9 @@
 #include "std_msgs/Int64.h"
 #include <Encoder.h>
 
-class OAKEncoder{
+class OAKEncoder: private OAK{
 public:
-	explicit OAKEncoder(ros::NodeHandle *nh, const char* name, const unsigned int del, byte a, byte b);
+	explicit OAKEncoder(const char* name, const unsigned int del, byte a, byte b);
 	void publish();
 
 private:

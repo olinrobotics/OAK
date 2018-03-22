@@ -7,9 +7,9 @@
 static void dummyFunc() {return;}
 extern void attachInterrupt2(uint8_t pin, void (*function)(void*), int mode, void* clas);
 
-class OAKEstop{
+class OAKEstop: private OAK{
 public:
-	explicit OAKEstop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime);
+	explicit OAKEstop(const int pin, const unsigned int debounceTime);
 	static void globalStop(void* instance);
 	void onStop(void (*func)());
 	void offStop(void (*func)());

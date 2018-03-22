@@ -12,6 +12,7 @@
  ******************************************************************************/
 
 
+#include "OAK.h"
 #include "OAKEstop.h"
 
 /*
@@ -23,11 +24,11 @@
  * @param[in] pin The pin that the servo is on
  * @param[in] debounceTime The debounce time of the estop button
  */
-OAKEstop::OAKEstop(ros::NodeHandle *nh, const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
+OAKEstop::OAKEstop(const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
   hardEStop = new ros::Publisher("/hardestop", &stopped);
   softEStop = new ros::Subscriber<std_msgs::Bool, OAKEstop>("/softestop", &OAKEstop::softStopCB, this);
-  nh->advertise(*hardEStop);
-  nh->subscribe(*softEStop);
+  OAK::nh->advertise(*hardEStop);
+  OAK::nh->subscribe(*softEStop);
   last_mill = millis();
   pinMode(pin, INPUT_PULLUP);
   attachInterrupt2(digitalPinToInterrupt(pin), &OAKEstop::globalStop, CHANGE, this);

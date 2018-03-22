@@ -6,9 +6,9 @@
 #include "std_msgs/Float32.h"
 #include <Adafruit_VL53L0X.h>
 
-class OAKVL53{
+class OAKVL53: private OAK{
 public:
-	explicit OAKVL53(ros::NodeHandle *nh, const char* name, const unsigned int del, const int address = 0x29);
+	explicit OAKVL53(const char* name, const unsigned int del, const int address = 0x29);
 	void publish();
 
 private:

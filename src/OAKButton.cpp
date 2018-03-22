@@ -15,7 +15,7 @@
  * @TODO optimize for other types of triggers
  ******************************************************************************/
 
-
+#include "OAK.h"
 #include "OAKButton.h"
 
 /*
@@ -29,9 +29,9 @@
  * @param[in] debounceTime The debounce time for the button
  * @param[in] trigger When the interrupt should be triggered (eg: CHANGE, RISING, FALLING, etc)
  */
-OAKButton::OAKButton(ros::NodeHandle *nh, const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin),debounceTime(debounceTime){
+OAKButton::OAKButton(const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin),debounceTime(debounceTime){
   but = new ros::Publisher(name, &pressed);
-  nh->advertise(*but);
+  OAK::nh->advertise(*but);
   last_mill = millis();
   pinMode(pin, INPUT_PULLUP);
   attachInterrupt2(digitalPinToInterrupt(pin), &OAKButton::globalPress, trigger, this);

@@ -13,6 +13,7 @@
  ******************************************************************************/
 
 
+#include "OAK.h"
 #include "OAKServo.h"
 
 /*
@@ -24,9 +25,9 @@
  * @param[in] name Name of the subscriber
  * @param[in] pin The pin that the servo is on
  */
-OAKServo::OAKServo(ros::NodeHandle *nh, const char* name, const int pin):pin(pin){
+OAKServo::OAKServo(const char* name, const int pin):pin(pin){
   signalIn = new ros::Subscriber<std_msgs::Byte, OAKServo>(name, &OAKServo::servoCB, this);
-  nh->subscribe(*signalIn); // tells ROS about the subscriber
+  OAK::nh->subscribe(*signalIn); // tells ROS about the subscriber
   s.attach(pin);
 }
 
@@ -41,9 +42,9 @@ OAKServo::OAKServo(ros::NodeHandle *nh, const char* name, const int pin):pin(pin
  * @param[in] min The min pulse width
  * @param[in] max The max pulse width
  */
-OAKServo::OAKServo(ros::NodeHandle *nh, const char* name, const int pin, const int min, const int max):pin(pin){
+OAKServo::OAKServo(const char* name, const int pin, const int min, const int max):pin(pin){
   signalIn = new ros::Subscriber<std_msgs::Byte, OAKServo>(name, &OAKServo::servoCB, this);
-  nh->subscribe(*signalIn); // tells ROS about the subscriber
+  OAK::nh->subscribe(*signalIn); // tells ROS about the subscriber
   s.attach(pin, min, max);
 }
 

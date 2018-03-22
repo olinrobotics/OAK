@@ -4,9 +4,9 @@
 #include "ros.h"
 #include "std_msgs/Float32.h"
 
-class OAKSharpIR{
+class OAKSharpIR: private OAK{
 public:
-	explicit OAKSharpIR(ros::NodeHandle *nh, const char* name, const unsigned int del, const int pin);
+	explicit OAKSharpIR(const char* name, const unsigned int del, const int pin);
 	void publish();
 
 private:

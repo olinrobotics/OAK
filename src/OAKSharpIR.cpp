@@ -12,6 +12,7 @@
  ******************************************************************************/
 
 
+#include "OAK.h"
 #include "OAKSharpIR.h"
 
 /*
@@ -23,9 +24,9 @@
  * @param[in] del The delay between publishing distances
  * @param[in] pin Analog pin that the sensor is attatched to
  */
-OAKSharpIR::OAKSharpIR(ros::NodeHandle *nh, const char* name, const unsigned int del, const int pin):del(del), pin(pin){
+OAKSharpIR::OAKSharpIR(const char* name, const unsigned int del, const int pin):del(del), pin(pin){
   dist_pub = new ros::Publisher(name, &dist);
-  nh->advertise(*dist_pub);
+  OAK::nh->advertise(*dist_pub);
   last_mill = millis();
 }
 

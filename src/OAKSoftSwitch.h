@@ -1,12 +1,13 @@
 #ifndef OAK_SOFT_SWITCH_H
 #define OAK_SOFT_SWITCH_H
 
- #include "ros.h"
- #include "std_msgs/Bool.h"
+#include "OAK.h"
+#include "ros.h"
+#include "std_msgs/Bool.h"
 
-class OAKSoftSwitch{
+class OAKSoftSwitch: private OAK{
 public:
-  explicit OAKSoftSwitch(ros::NodeHandle *nh, const char* name, const int pin);
+  explicit OAKSoftSwitch(const char* name, const int pin);
 
 private:
   ros::Subscriber<std_msgs::Bool, OAKSoftSwitch> *signalIn;
