@@ -4,4 +4,4 @@
 ros::NodeHandle n;
 ros::NodeHandle *const OAK::nh = &n;
 // set alarmclass pointer to existing alarm
-TimeAlarmsClass *const OAK::alarm = &Alarm;
+OAKTimeAlarmsClass *const OAK::alarm = &Alarm;

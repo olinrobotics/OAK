@@ -158,8 +158,6 @@ static void port_D_isr(void) __attribute__ ((section(".fastrun"), noinline, nocl
 static void port_E_isr(void) __attribute__ ((section(".fastrun"), noinline, noclone ));
 #endif
 
-typedef void(*intFuncPtr)(void*);
-
 typedef struct
 {
 	voidFuncPtr func;
