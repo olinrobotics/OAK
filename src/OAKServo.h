@@ -1,9 +1,10 @@
 #ifndef OAK_SERVO_H
 #define OAK_SERVO_H
 
- #include "ros.h"
- #include "std_msgs/Byte.h"
- #include <PWMServo.h>
+#include "ros.h"
+#include "std_msgs/Byte.h"
+#include <PWMServo.h>
+#include "OAK.h"
 
 class OAKServo: private OAK{
 public:
@@ -13,7 +14,6 @@ public:
 private:
   ros::Subscriber<std_msgs::Byte, OAKServo> *signalIn;
   std_msgs::Byte servo_signal;
-  const int pin;
   PWMServo s;
   void servoCB(const std_msgs::Byte &sig);
 };

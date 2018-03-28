@@ -15,7 +15,6 @@
  * @TODO optimize for other types of triggers
  ******************************************************************************/
 
-#include "OAK.h"
 #include "OAKButton.h"
 
 /*
@@ -29,10 +28,10 @@
  * @param[in] debounceTime The debounce time for the button
  * @param[in] trigger When the interrupt should be triggered (eg: CHANGE, RISING, FALLING, etc)
  */
-OAKButton::OAKButton(const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin),debounceTime(debounceTime){
+OAKButton::OAKButton(const char* name, const int pin, const unsigned int debounceTime, const int trigger):pin(pin){
   but = new ros::Publisher(name, &pressed);
-  OAK::nh->advertise(*but);
-  last_mill = millis();
+  nh->advertise(*but);
+  timer = new Metro(debounceTime);
   pinMode(pin, INPUT_PULLUP);
   attachInterrupt2(digitalPinToInterrupt(pin), &OAKButton::globalPress, trigger, this);
   pressed.data = !digitalRead(pin);
@@ -54,7 +53,7 @@ void OAKButton::globalPress(void *instance){
  * If released - calls the releasedfunc and publishes false
  */
 void OAKButton::onChange(){
-  if(millis()-last_mill >= debounceTime){
+  if(timer->check()){
     pressed.data = !pressed.data;
     but->publish(&pressed);
     if(pressed.data){
@@ -63,7 +62,6 @@ void OAKButton::onChange(){
     else{
       (*releasedfunc)();
     }
-    last_mill = millis();
   }
 }
 

@@ -12,7 +12,6 @@
  ******************************************************************************/
 
 
-#include "OAK.h"
 #include "OAKEncoder.h"
 
 /*
@@ -26,18 +25,18 @@
  * @param[in] a Pin a of the encoder
  * @param[in] b Pin b of the encoder
  */
-OAKEncoder::OAKEncoder(const char* name, const unsigned int del, byte a, byte b):del(del){
+OAKEncoder::OAKEncoder(const char* name, const unsigned int del, byte a, byte b){
   encod_pub = new ros::Publisher(name, &count);
-  OAK::nh->advertise(*encod_pub);
+  nh->advertise(*encod_pub);
   enc = new Encoder(a, b);
-  last_mill = millis();
+  timer = new Metro(del);
 }
 
 /*
  * Function that publishes at a given rate
  */
 void OAKEncoder::publish(){
-  if(millis()-last_mill >= del){
+  if(timer->check()){
     count.data = enc->read();
     enc->write(0);
     encod_pub->publish(&count);

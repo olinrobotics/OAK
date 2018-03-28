@@ -12,7 +12,6 @@
  ******************************************************************************/
 
 
-#include "OAK.h"
 #include "OAKEstop.h"
 
 /*
@@ -24,12 +23,12 @@
  * @param[in] pin The pin that the servo is on
  * @param[in] debounceTime The debounce time of the estop button
  */
-OAKEstop::OAKEstop(const int pin, const unsigned int debounceTime):pin(pin),debounceTime(debounceTime){
+OAKEstop::OAKEstop(const int pin, const unsigned int debounceTime):pin(pin){
   hardEStop = new ros::Publisher("/hardestop", &stopped);
   softEStop = new ros::Subscriber<std_msgs::Bool, OAKEstop>("/softestop", &OAKEstop::softStopCB, this);
-  OAK::nh->advertise(*hardEStop);
-  OAK::nh->subscribe(*softEStop);
-  last_mill = millis();
+  nh->advertise(*hardEStop);
+  nh->subscribe(*softEStop);
+  timer = new Metro(debounceTime);
   pinMode(pin, INPUT_PULLUP);
   attachInterrupt2(digitalPinToInterrupt(pin), &OAKEstop::globalStop, CHANGE, this);
   stopped.data = !digitalRead(pin);
@@ -60,7 +59,7 @@ bool OAKEstop::isStopped(){
  * If reseting from stop - calls the startfunc and publishes false
  */
 void OAKEstop::onChange(){
-  if(millis()-last_mill >= debounceTime*50){
+  if(timer->check()){
     /*if(digitalRead(ESTOP_PIN)){
       stopped.data = true;
       hardEStop->publish(&stopped);
@@ -80,7 +79,6 @@ void OAKEstop::onChange(){
       if(!softStopped)
         (*startfunc)();
     }
-    last_mill = millis();
   }
 }
 

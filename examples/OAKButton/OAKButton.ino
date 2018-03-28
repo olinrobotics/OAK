@@ -2,19 +2,18 @@
 #include <ros.h>
 #include <OAKButton.h>
 
-ros::NodeHandle nh;
 OAKButton *b;
 
 void setup(){
-  nh.initNode(); // Initialize ROS nodehandle
-  b = new OAKButton(&nh, "/test_button", 0, 100, CHANGE);
+  OAK::nh->initNode(); // Initialize ROS nodehandle
+  b = new OAKButton("/test_button", 0, 100, CHANGE);
   b->onPress(press);
   b->offPress(release);
   pinMode(13, OUTPUT);
 }
 
 void loop(){
-  nh.spinOnce();
+  OAK::nh->spinOnce();
   delay(100);
 }
 

@@ -2,13 +2,11 @@
 #include <ros.h>
 #include <OAKEstop.h>
 
-// ROS variables
-ros::NodeHandle nh;
 OAKEstop *e;
 
 void setup() {
-  nh.initNode(); // Initialize ROS nodehandle
-  e = new OAKEstop(&nh, 2, 1);
+  OAK::nh->initNode(); // Initialize ROS nodehandle
+  e = new OAKEstop(2, 1);
   e->onStop(stop);
   e->offStop(restart);
   pinMode(13, OUTPUT);
@@ -16,7 +14,7 @@ void setup() {
 
 void loop() {
   delay(100);
-  nh.spinOnce();
+  OAK::nh->spinOnce();
 }
 
 void stop(){

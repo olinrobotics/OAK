@@ -2,15 +2,14 @@
 #include <ros.h>
 #include <OAKSharpIR.h>
 
-ros::NodeHandle nh;
 OAKSharpIR *ir;
 
 void setup(){
-  nh.initNode(); // Initialize ROS nodehandle
-  ir = new OAKSharpIR(&nh, "/test_ir", 100, 23);
+  OAK::nh->initNode(); // Initialize ROS nodehandle
+  ir = new OAKSharpIR("/test_ir", 100, 23);
 }
 
 void loop(){
-  nh.spinOnce();
+  OAK::nh->spinOnce();
   ir->publish();
 }

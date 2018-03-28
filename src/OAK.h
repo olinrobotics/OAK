@@ -3,14 +3,13 @@
 
 #include "ros.h"
 #include <Time.h>
-#include "OAKTimeAlarms.h"
+#include <Metro.h>
 
 class OAK{
 public:
 	// const pointer to nodehandle
 	static ros::NodeHandle *const nh;
-	// const pointer to timealarm
-	static OAKTimeAlarmsClass *const alarm;
+	Metro *timer;
 };
 
 #endif //OAK_H

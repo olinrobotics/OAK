@@ -4,6 +4,7 @@
 #include "ros.h"
 #include "std_msgs/Int64.h"
 #include <Encoder.h>
+#include "OAK.h"
 
 class OAKEncoder: private OAK{
 public:
@@ -14,8 +15,6 @@ private:
 	ros::Publisher *encod_pub;
 	std_msgs::Int64 count;
 	Encoder *enc;
-	const unsigned int del;
-	long last_mill;
 };
 
 #endif //OAK_ENCODER_H

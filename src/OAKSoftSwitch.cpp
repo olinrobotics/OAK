@@ -21,7 +21,7 @@
  */
 OAKSoftSwitch::OAKSoftSwitch(const char* name, const int pin):pin(pin){
   signalIn = new ros::Subscriber<std_msgs::Bool, OAKSoftSwitch>(name, &OAKSoftSwitch::softCB, this);
-  OAK::nh->subscribe(*signalIn);
+  nh->subscribe(*signalIn);
   pinMode(pin, OUTPUT);
 }
 /*

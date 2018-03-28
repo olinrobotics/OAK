@@ -4,6 +4,7 @@
 #include <Time.h>
 #include "ros.h"
 #include "std_msgs/Bool.h"
+#include "OAK.h"
 
 static void dummyFunc() {return;}
 extern void attachInterrupt2(uint8_t pin, void (*function)(void*), int mode, void* clas);
@@ -18,9 +19,7 @@ public:
 private:
   ros::Publisher *but;
   std_msgs::Bool pressed;
-	const unsigned int debounceTime;
-	const int pin;
-	long last_mill;
+  const int pin;
   void onChange();
   void (*pressedfunc)() = dummyFunc;
   void (*releasedfunc)() = dummyFunc;

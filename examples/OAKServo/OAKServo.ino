@@ -2,15 +2,14 @@
 #include <ros.h>
 #include <OAKServo.h>
 
-ros::NodeHandle nh;
 OAKServo *s;
 
 void setup(){
-  nh.initNode(); // Initialize ROS nodehandle
-  s = new OAKServo(&nh, "/test_servo", 2);
+  OAK::nh->initNode(); // Initialize ROS nodehandle
+  s = new OAKServo("/test_servo", 2);
 }
 
 void loop(){
-  nh.spinOnce();
+  OAK::nh->spinOnce();
   delay(100);
 }

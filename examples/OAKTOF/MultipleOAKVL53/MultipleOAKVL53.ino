@@ -13,14 +13,13 @@
 
 #define NUM_SENSOR 3
 
-ros::NodeHandle nh;
 OAKVL53 *v[NUM_SENSOR];
 const String names[] = {"Left", "Center", "Right"};
 const byte pins[] = {1,2,3};
 const byte addresses[] = {0x31,0x30,0x29};
 
 void setup(){
-  nh.initNode(); // Initialize ROS nodehandle
+  OAK::nh->initNode(); // Initialize ROS nodehandle
   for(int i = 0; i < NUM_SENSOR; i++){
     pinMode(pins[i], OUTPUT);
     digitalWrite(pins[i], LOW);
@@ -28,12 +27,12 @@ void setup(){
   delay(15); // Give the TOF sensors time to reset
   for(int i = 0; i < NUM_SENSOR; i++){
     digitalWrite(pin[i], HIGH);
-    v[i] = new OAKVL53(&nh, names[i].c_str(), 100, addresses[i]);
+    v[i] = new OAKVL53(names[i].c_str(), 100, addresses[i]);
   }
 }
 
 void loop(){
-  nh.spinOnce();
+  OAK::nh->spinOnce();
   for(int i = 0; i < NUM_SENSOR; i++){
     v[i]->publish;
   }

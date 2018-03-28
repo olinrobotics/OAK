@@ -12,7 +12,6 @@
  ******************************************************************************/
 
 
-#include "OAK.h"
 #include "OAKVL53.h"
 
 /*
@@ -25,19 +24,19 @@
  * @param[in] del The delay between publishing distances
  * @param[in] address Address of the VL53L0X (default = 0x29)
  */
-OAKVL53::OAKVL53(const char* name, const unsigned int del, const int address):del(del){
+OAKVL53::OAKVL53(const char* name, const unsigned int del, const int address){
   dist_pub = new ros::Publisher(name, &dist);
-  OAK::nh->advertise(*dist_pub);
+  nh->advertise(*dist_pub);
   tof = new Adafruit_VL53L0X();
   tof->begin(address);
-  last_mill = millis();
+  timer = new Metro(del);
 }
 
 /*
  * Function that publishes at a given rate
  */
 void OAKVL53::publish(){
-  if(millis()-last_mill >= del){
+  if(timer->check()){
     tof->rangingTest(&measure, false);
     if (measure.RangeStatus != 4) {  // phase failures have incorrect data
       dist.data = measure.RangeMilliMeter;

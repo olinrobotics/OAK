@@ -2,15 +2,14 @@
 #include <ros.h>
 #include <OAKSoftSwitch.h>
 
-ros::NodeHandle nh;
 OAKSoftSwitch *s;
 
 void setup(){
-  nh.initNode(); // Initialize ROS nodehandle
-  s = new OAKSoftSwitch(&nh, "/test_servo", 13);
+  OAK::nh->initNode(); // Initialize ROS nodehandle
+  s = new OAKSoftSwitch("/test_servo", 13);
 }
 
 void loop(){
-  nh.spinOnce();
+  OAK::nh->spinOnce();
   delay(100);
 }
